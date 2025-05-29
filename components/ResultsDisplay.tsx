@@ -60,9 +60,10 @@ interface ResultsDisplayProps {
   documents: ProcessedDocument[];
   summary: ProcessSummary | null;
   isLoading: boolean;
+  masterDocumentContent: string;
 }
 
-export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ documents, summary, isLoading }) => {
+export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ documents, summary, isLoading, masterDocumentContent }) => {
   if (isLoading) {
     return (
       <div className="text-center p-10">
@@ -118,6 +119,24 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ documents, summa
             {documents.map((doc, index) => (
               <DocumentItem key={`${doc.sourcePath}-${index}`} document={doc} />
             ))}
+          </div>
+          <div className="text-right mt-4">
+            <button
+              onClick={() => {
+                const blob = new Blob([masterDocumentContent], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'documentacion_maestra.md';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+              }}
+              className="px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 focus:outline-none"
+            >
+              Descargar Documento Maestro
+            </button>
           </div>
         </div>
       )}
