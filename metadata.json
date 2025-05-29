@@ -1,0 +1,6 @@
+{
+  "name": "Procesador de Documentación Markdown",
+  "description": "Una aplicación web para seleccionar una carpeta, procesar recursivamente archivos Markdown (.md) y mostrar su contenido y rutas relativas.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
