@@ -17,15 +17,23 @@ const App: React.FC = () => {
     setIsLoading(true);
     setCurrentError(null);
     setProcessedDocuments([]);
-    
+
+    // Convert FileList to an array immediately.  Some browsers mutate the
+    // FileList when the input value is cleared, so working with a copy ensures
+    // we keep access to every file the user selected.
+    const filesArray = Array.from(selectedFiles);
+    // Sort by the relative path so the processing order is deterministic and
+    // matches the folder structure.
+    filesArray.sort((a, b) => (a.webkitRelativePath || a.name).localeCompare(b.webkitRelativePath || b.name));
+
     const newProcessedDocuments: ProcessedDocument[] = [];
     const newErrorDetails: ErrorDetail[] = [];
     let filesProcessedSuccessfully = 0;
-    const totalFilesFoundInSelection = selectedFiles.length;
+    const totalFilesFoundInSelection = filesArray.length;
 
     console.log(`STARTING FOLDER PROCESSING. Total items from input: ${totalFilesFoundInSelection}, Configured extension: "${fileExtensionConfig}"`);
 
-    if (!selectedFiles || selectedFiles.length === 0) {
+    if (filesArray.length === 0) {
       console.log("No files selected or FileList is empty.");
       setSummary({
         totalFilesFound: 0,
@@ -39,10 +47,10 @@ const App: React.FC = () => {
       return;
     }
     
-    setSourceFolderNameForDisplay(folderNameFromInputHeuristic); 
+    setSourceFolderNameForDisplay(folderNameFromInputHeuristic);
 
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
+    for (let i = 0; i < filesArray.length; i++) {
+      const file = filesArray[i];
       
       // Detailed log for every item in FileList
       console.log(`[Loop i=${i}/${totalFilesFoundInSelection-1}] Inspecting item: 
