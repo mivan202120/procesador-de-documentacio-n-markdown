@@ -21,3 +21,8 @@ npm run scan-md ./path/to/folder
 ```
 
 This will print every Markdown file found inside the folder and its subdirectories.
+
+## Descarga de documentación procesada
+
+Al finalizar el procesamiento, la aplicación permite descargar la documentación
+generada en un archivo ZIP que contiene cinco partes de tamaño similar.

@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import JSZip from 'jszip';
 import { ProcessedDocument, ProcessSummary } from '../types';
 
 // Simple ChevronDown Icon SVG
@@ -60,9 +61,10 @@ interface ResultsDisplayProps {
   documents: ProcessedDocument[];
   summary: ProcessSummary | null;
   isLoading: boolean;
+  masterDocumentParts: string[];
 }
 
-export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ documents, summary, isLoading }) => {
+export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ documents, summary, isLoading, masterDocumentParts }) => {
   if (isLoading) {
     return (
       <div className="text-center p-10">
@@ -118,6 +120,28 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ documents, summa
             {documents.map((doc, index) => (
               <DocumentItem key={`${doc.sourcePath}-${index}`} document={doc} />
             ))}
+          </div>
+          <div className="text-right mt-4">
+            <button
+              onClick={async () => {
+                const zip = new JSZip();
+                masterDocumentParts.forEach((content, index) => {
+                  zip.file(`documento_${index + 1}.md`, content);
+                });
+                const blob = await zip.generateAsync({ type: 'blob' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'documentacion_partes.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+              }}
+              className="px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 focus:outline-none"
+            >
+              Descargar Documentación (ZIP)
+            </button>
           </div>
         </div>
       )}

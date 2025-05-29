@@ -12,11 +12,13 @@ const App: React.FC = () => {
   const [currentError, setCurrentError] = useState<string | null>(null);
   const [fileExtensionConfig, setFileExtensionConfig] = useState<string>(".md");
   const [sourceFolderNameForDisplay, setSourceFolderNameForDisplay] = useState<string | null>(null);
+  const [masterDocumentParts, setMasterDocumentParts] = useState<string[]>([]);
 
   const processFolder = useCallback(async (selectedFiles: FileList, folderNameFromInputHeuristic: string) => {
     setIsLoading(true);
     setCurrentError(null);
     setProcessedDocuments([]);
+    setMasterDocumentParts([]);
 
     // Convert FileList to an array immediately.  Some browsers mutate the
     // FileList when the input value is cleared, so working with a copy ensures
@@ -110,6 +112,18 @@ const App: React.FC = () => {
 
     console.log("FINISHED FOLDER PROCESSING LOOP.");
     setProcessedDocuments(newProcessedDocuments);
+    const aggregatedContent = newProcessedDocuments.map(doc => `### ${doc.sourcePath}\n\n${doc.textContent}`).join("\n\n");
+    const partLength = Math.ceil(aggregatedContent.length / 5);
+    const parts: string[] = [];
+    for (let i = 0; i < 5; i++) {
+      const start = i * partLength;
+      if (start < aggregatedContent.length) {
+        parts.push(aggregatedContent.slice(start, Math.min(start + partLength, aggregatedContent.length)));
+      } else {
+        parts.push("");
+      }
+    }
+    setMasterDocumentParts(parts);
     setSummary({
       totalFilesFound: totalFilesFoundInSelection,
       filesSuccessfullyProcessed: filesProcessedSuccessfully,
@@ -171,6 +185,7 @@ const App: React.FC = () => {
             documents={processedDocuments}
             summary={summary}
             isLoading={isLoading}
+            masterDocumentParts={masterDocumentParts}
           />
         </main>
         <footer className="text-center mt-12 py-6 border-t border-slate-700">
